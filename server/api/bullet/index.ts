@@ -5,7 +5,7 @@ export type Methods = {
     query: {
       display: number;
     };
-    resBody: BulletModel[];
+    resBody: { body: BulletModel[]; change: boolean };
   };
   post: {
     resBody: BulletModel | null;

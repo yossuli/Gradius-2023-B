@@ -16,29 +16,44 @@ const toEnemyModel = (prismaEnemy: Enemy): EnemyModel => ({
   createdAt: prismaEnemy.createdAt.getTime(),
 });
 
+let change = 2;
+
+const statuses = [false, false, true];
+
 export const enemiesRepository = {
   create: async (enemy: EnemyModel): Promise<EnemyModel> => {
-    const prismaEnemy = await prismaClient.enemy.create({
-      data: {
-        id: enemy.id,
-        createdPosition: enemy.createdPosition,
-        type: enemy.type,
-        createdAt: new Date(enemy.createdAt),
-      },
-    });
+    change = 1;
+    const prismaEnemy = await prismaClient.enemy
+      .create({
+        data: {
+          id: enemy.id,
+          createdPosition: enemy.createdPosition,
+          type: enemy.type,
+          createdAt: new Date(enemy.createdAt),
+        },
+      })
+      .then((enemy) => {
+        change = 1;
+        return enemy;
+      });
     return toEnemyModel(prismaEnemy);
   },
-  findAll: async (): Promise<EnemyModel[]> => {
+  findAll: async (): Promise<{ body: EnemyModel[]; change: boolean }> => {
+    const status = statuses[change];
+    change = change === 1 ? 2 : 0;
     const prismaEnemies = await prismaClient.enemy.findMany({
       orderBy: { createdAt: 'desc' },
     });
-    return prismaEnemies.map(toEnemyModel);
+    return { body: prismaEnemies.map(toEnemyModel), change: status };
   },
-  find: async (id: string): Promise<EnemyModel | null> => {
+  find: async (id: string): Promise<{ body: EnemyModel; change: boolean } | null> => {
+    const status = statuses[change];
+    change = change === 1 ? 2 : 0;
     const prismaEnemy = await prismaClient.enemy.findUnique({ where: { id } });
-    return prismaEnemy !== null ? toEnemyModel(prismaEnemy) : null;
+    return prismaEnemy !== null ? { body: toEnemyModel(prismaEnemy), change: status } : null;
   },
   delete: async (id: string): Promise<void> => {
-    await prismaClient.enemy.delete({ where: { id } });
+    change = 1;
+    await prismaClient.enemy.delete({ where: { id } }).then(() => (change = 1));
   },
 };

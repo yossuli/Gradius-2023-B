@@ -29,7 +29,7 @@ const Game = () => {
         <>
           {[...Array(displayNumber)].map((_, i) => (
             <button onClick={() => router.push({ query: { display: i } })} key={i}>
-              {i}
+              {`  ${i}  `}
             </button>
           ))}
         </>
@@ -47,24 +47,23 @@ const Game = () => {
     const [currentTime, setCurrentTime] = useState<number>(Date.now());
     const [shipImage] = useImage(staticPath.images.spaceship_png);
     const [enemyImage] = useImage(staticPath.images.enemy_spaceship_png);
-
     const fetchPlayers = async (display: number) => {
-      const res = await apiClient.player.$get({ query: { display } });
-      if (res !== null) {
+      const { body: res, change: change } = await apiClient.player.$get({ query: { display } });
+      if (res !== null && change) {
         setPlayers(res);
       }
     };
 
     const fetchEnemies = async (display: number) => {
-      const res = await apiClient.enemy.$get({ query: { display } });
-      if (res !== null) {
+      const { body: res, change: change } = await apiClient.enemy.$get({ query: { display } });
+      if (res !== null && change) {
         setEnemies(res);
       }
     };
 
     const fetchBullets = async (display: number) => {
-      const res = await apiClient.bullet.$get({ query: { display } });
-      if (res !== null) {
+      const { body: res, change: change } = await apiClient.bullet.$get({ query: { display } });
+      if (res !== null && change) {
         setBullets(res);
       }
     };
@@ -81,6 +80,7 @@ const Game = () => {
 
     return (
       <div>
+        <>{new Date().getTime()}</>
         <Stage width={1920} height={1080}>
           <Layer>
             {players.map((player) => (

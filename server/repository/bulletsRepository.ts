@@ -18,35 +18,45 @@ const toBulletModel = (prismaBullet: Bullet): BulletModel => ({
   createdAt: prismaBullet.createdAt.getTime(),
 });
 
+let change = 2;
+
+const statuses = [false, false, true];
+
 export const bulletsRepository = {
-  findAll: async (): Promise<BulletModel[]> => {
+  findAll: async (): Promise<{ body: BulletModel[]; change: boolean }> => {
+    const status = statuses[change];
+    change = change === 1 ? 2 : 0;
     const prismaBullets = await prismaClient.bullet.findMany({
       orderBy: { createdAt: 'desc' },
     });
-    return prismaBullets.map(toBulletModel);
+    return { body: prismaBullets.map(toBulletModel), change: status };
   },
-  find: async (id: string): Promise<BulletModel | null> => {
+  find: async (id: string): Promise<{ body: BulletModel; change: boolean } | null> => {
+    const status = statuses[change];
+    change = change === 1 ? 2 : 0;
     const prismaBullet = await prismaClient.bullet.findUnique({ where: { id } });
-    return prismaBullet !== null ? toBulletModel(prismaBullet) : null;
+    return prismaBullet !== null ? { body: toBulletModel(prismaBullet), change: status } : null;
   },
   delete: async (id: string): Promise<void> => {
     try {
-      await prismaClient.bullet.delete({ where: { id } });
+      await prismaClient.bullet.delete({ where: { id } }).then(() => (change = 1));
       console.log('success delete');
     } catch (error) {
       console.log(error);
     }
   },
   create: async (bullet: BulletModel) => {
-    await prismaClient.bullet.create({
-      data: {
-        id: bullet.id,
-        createdPosition: bullet.createdPosition,
-        direction: bullet.direction,
-        type: bullet.type,
-        playerId: bullet.playerId,
-        createdAt: new Date(bullet.createdAt),
-      },
-    });
+    await prismaClient.bullet
+      .create({
+        data: {
+          id: bullet.id,
+          createdPosition: bullet.createdPosition,
+          direction: bullet.direction,
+          type: bullet.type,
+          playerId: bullet.playerId,
+          createdAt: new Date(bullet.createdAt),
+        },
+      })
+      .then(() => (change = 1));
   },
 };

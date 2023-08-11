@@ -6,7 +6,7 @@ export type Methods = {
     query: {
       display: number;
     };
-    resBody: EnemyModel[];
+    resBody: { body: EnemyModel[]; change: boolean };
   };
   post: {
     reqBody: {

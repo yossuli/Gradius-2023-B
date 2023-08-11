@@ -20,47 +20,61 @@ const toPlayerModel = (prismaPlayer: Player): PlayerModel => ({
   createdAt: prismaPlayer.createdAt.getTime(),
 });
 
+let change = 2;
+
+const statuses = [false, false, true];
+
 export const playersRepository = {
   save: async (player: PlayerModel): Promise<PlayerModel> => {
-    const prismaPlayer = await prismaClient.player.upsert({
-      where: { id: player.id },
-      update: {
-        name: player.name,
-        position: player.position,
-        health: player.health,
-        score: player.score,
-        team: player.team,
-      },
-      create: {
-        id: player.id,
-        name: player.name,
-        position: player.position,
-        health: player.health,
-        score: player.score,
-        team: player.team,
-        createdAt: new Date(player.createdAt),
-      },
-    });
+    const prismaPlayer = await prismaClient.player
+      .upsert({
+        where: { id: player.id },
+        update: {
+          name: player.name,
+          position: player.position,
+          health: player.health,
+          score: player.score,
+          team: player.team,
+        },
+        create: {
+          id: player.id,
+          name: player.name,
+          position: player.position,
+          health: player.health,
+          score: player.score,
+          team: player.team,
+          createdAt: new Date(player.createdAt),
+        },
+      })
+      .then((player) => {
+        change = 1;
+        return player;
+      });
     return toPlayerModel(prismaPlayer);
   },
-  findAll: async (): Promise<PlayerModel[]> => {
+  findAll: async (): Promise<{ body: PlayerModel[]; change: boolean }> => {
+    const status = statuses[change];
+    change = change === 1 ? 2 : 0;
     const prismaPlayers = await prismaClient.player.findMany({
       orderBy: { createdAt: 'desc' },
     });
-    return prismaPlayers.map(toPlayerModel);
+    return { body: prismaPlayers.map(toPlayerModel), change: status };
   },
-  findAllInTeam: async (team: string): Promise<PlayerModel[]> => {
+  findAllInTeam: async (team: string): Promise<{ body: PlayerModel[]; change: boolean }> => {
+    const status = statuses[change];
+    change = change === 1 ? 2 : 0;
     const prismaPlayers = await prismaClient.player.findMany({
       where: { team },
       orderBy: { createdAt: 'desc' },
     });
-    return prismaPlayers.map(toPlayerModel);
+    return { body: prismaPlayers.map(toPlayerModel), change: status };
   },
   find: async (id: UserId): Promise<PlayerModel | null> => {
+    change = change === 1 ? 2 : 0;
     const prismaPlayer = await prismaClient.player.findUnique({ where: { id } });
     return prismaPlayer !== null ? toPlayerModel(prismaPlayer) : null;
   },
   delete: async (id: string): Promise<void> => {
-    await prismaClient.player.delete({ where: { id } });
+    await prismaClient.player.delete({ where: { id } }).then(() => (change = 1));
   },
 };
