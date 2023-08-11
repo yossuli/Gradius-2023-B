@@ -22,7 +22,6 @@ const statuses = [false, false, true];
 
 export const enemiesRepository = {
   create: async (enemy: EnemyModel): Promise<EnemyModel> => {
-    change = 1;
     const prismaEnemy = await prismaClient.enemy
       .create({
         data: {
@@ -53,7 +52,6 @@ export const enemiesRepository = {
     return prismaEnemy !== null ? { body: toEnemyModel(prismaEnemy), change: status } : null;
   },
   delete: async (id: string): Promise<void> => {
-    change = 1;
     await prismaClient.enemy.delete({ where: { id } }).then(() => (change = 1));
   },
 };
