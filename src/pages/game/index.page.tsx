@@ -5,7 +5,7 @@ import { Image, Layer, Stage } from 'react-konva';
 import { Bullet } from 'src/components/Bullet/PlayerBullet';
 import { staticPath } from 'src/utils/$path';
 import { apiClient } from 'src/utils/apiClient';
-import { compare } from 'src/utils/compare';
+import { isDifference } from 'src/utils/isDifference';
 import useImage from 'use-image';
 
 const Game = () => {
@@ -51,7 +51,7 @@ const Game = () => {
 
     const fetchPlayers = async (display: number) => {
       const res = await apiClient.player.$get({ query: { display } });
-      if (res !== null && !compare(players, res)) {
+      if (res !== null && !isDifference<PlayerModel[]>(players, res)) {
         setPlayers(res);
         console.log(res);
       }
@@ -60,7 +60,7 @@ const Game = () => {
 
     const fetchEnemies = async (display: number) => {
       const res = await apiClient.enemy.$get({ query: { display } });
-      if (res !== null && !compare(enemies, res)) {
+      if (res !== null && !isDifference<EnemyModel[]>(enemies, res)) {
         setEnemies(res);
         return true;
       }
@@ -69,7 +69,7 @@ const Game = () => {
 
     const fetchBullets = async (display: number) => {
       const res = await apiClient.bullet.$get({ query: { display } });
-      if (res !== null && !compare(bullets, res)) {
+      if (res !== null && !isDifference<BulletModel[]>(bullets, res)) {
         setBullets(res);
         return true;
       }
