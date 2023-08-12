@@ -51,7 +51,7 @@ const Game = () => {
 
     const fetchPlayers = async (display: number) => {
       const res = await apiClient.player.$get({ query: { display } });
-      if (res !== null && !isDifference<PlayerModel[]>(players, res)) {
+      if (res !== null && isDifference<PlayerModel[]>(players, res)) {
         setPlayers(res);
         console.log(res);
       }
@@ -60,7 +60,7 @@ const Game = () => {
 
     const fetchEnemies = async (display: number) => {
       const res = await apiClient.enemy.$get({ query: { display } });
-      if (res !== null && !isDifference<EnemyModel[]>(enemies, res)) {
+      if (res !== null && isDifference<EnemyModel[]>(enemies, res)) {
         setEnemies(res);
         return true;
       }
@@ -69,7 +69,7 @@ const Game = () => {
 
     const fetchBullets = async (display: number) => {
       const res = await apiClient.bullet.$get({ query: { display } });
-      if (res !== null && !isDifference<BulletModel[]>(bullets, res)) {
+      if (res !== null && isDifference<BulletModel[]>(bullets, res)) {
         setBullets(res);
         return true;
       }
