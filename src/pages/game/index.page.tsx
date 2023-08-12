@@ -5,6 +5,7 @@ import { Image, Layer, Stage } from 'react-konva';
 import { Bullet } from 'src/components/Bullet/PlayerBullet';
 import { staticPath } from 'src/utils/$path';
 import { apiClient } from 'src/utils/apiClient';
+import { compare } from 'src/utils/compare';
 import useImage from 'use-image';
 
 const Game = () => {
@@ -50,30 +51,36 @@ const Game = () => {
 
     const fetchPlayers = async (display: number) => {
       const res = await apiClient.player.$get({ query: { display } });
-      if (res !== null) {
+      if (res !== null && !compare(players, res)) {
         setPlayers(res);
+        console.log(res);
       }
+      return false;
     };
 
     const fetchEnemies = async (display: number) => {
       const res = await apiClient.enemy.$get({ query: { display } });
-      if (res !== null) {
+      if (res !== null && !compare(enemies, res)) {
         setEnemies(res);
+        return true;
       }
+      return false;
     };
 
     const fetchBullets = async (display: number) => {
       const res = await apiClient.bullet.$get({ query: { display } });
-      if (res !== null) {
+      if (res !== null && !compare(bullets, res)) {
         setBullets(res);
+        return true;
       }
+      return false;
     };
 
     useEffect(() => {
       const cancelId = requestAnimationFrame(() => {
-        fetchPlayers(display);
-        fetchEnemies(display);
-        fetchBullets(display);
+        if ([fetchPlayers(display), fetchEnemies(display), fetchBullets(display)].some(Boolean)) {
+          //
+        }
         setCurrentTime(Date.now());
       });
       return () => cancelAnimationFrame(cancelId);

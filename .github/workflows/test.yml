@@ -29,8 +29,8 @@ jobs:
         if: steps.client-npm-cache.outputs.cache-hit != 'true'
       - run: npm install --prefix server
         if: steps.server-npm-cache.outputs.cache-hit != 'true'
-      - run: npm run lint
       - run: npm run typecheck
+      - run: npm run lint
       - run: |
           cp .env.example .env
           cp server/.env.example server/.env
