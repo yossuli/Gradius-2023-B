@@ -51,7 +51,7 @@ const reversYWithI = (y: number, i: number) => (i % 2 === 0 ? y : 1080 - y);
 
 export const enemyTable = (displayNumber: number): EnemyTableModel[][] => {
   if (displayNumber === 1) return [finalTable];
-  if (displayNumber === 2) return [finalTable, finalTable];
+  if (displayNumber === 2) return [firstTable, finalTable];
   const middle = [...Array(displayNumber - 2)].map((_, i) =>
     middleTable.map((table) => ({
       ...table,
