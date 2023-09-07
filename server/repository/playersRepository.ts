@@ -43,6 +43,16 @@ export const playersRepository = {
     });
     return toPlayerModel(prismaPlayer);
   },
+  save2: async (playerId: UserId, score: number, health: number) => {
+    const prismaPlayer = await prismaClient.player.update({
+      where: { id: playerId },
+      data: {
+        score,
+        health,
+      },
+    });
+    return toPlayerModel(prismaPlayer);
+  },
   findAll: async (): Promise<PlayerModel[]> => {
     const prismaPlayers = await prismaClient.player.findMany({
       orderBy: { createdAt: 'desc' },

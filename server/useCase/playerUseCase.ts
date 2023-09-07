@@ -48,7 +48,7 @@ export const playerUseCase = {
       health: player.health - 1,
       position: { ...player.position, x: player.position.x + 1920 * displayNumber },
     };
-    await gameOver(player, newPlayer);
+    await gameOver(player);
     await bulletsRepository.delete(bulletId);
   },
   create: async (userName: string): Promise<PlayerModel | null> => {

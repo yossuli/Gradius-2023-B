@@ -49,17 +49,11 @@ export const gameUseCase = {
     return player;
   },
   collision: async (player: PlayerModel, enemy: EnemyModel, displayNumber: number) => {
-    const newPlayer = {
-      ...player,
-      health: player.health - 1,
-      position: { ...player.position, x: player.position.x + 1920 * displayNumber },
-    };
-
     const enemyStatus = await enemiesRepository.find(enemy.id);
     if (enemyStatus?.deletedAt !== null) {
       return;
     }
-    await gameOver(player, newPlayer);
+    await gameOver(player);
     await enemiesRepository.update(enemy.id, new Date());
   },
 };
