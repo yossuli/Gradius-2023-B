@@ -26,7 +26,7 @@ const Controller = () => {
   };
 
   const shootStart = () => {
-    const intervalId = setInterval(shootBullet, 600);
+    const intervalId = setInterval(shootBullet, 0);
     setShootIntervalIds([...shootIntervalIds, intervalId]);
   };
 
@@ -63,6 +63,7 @@ const Controller = () => {
   const createEnemy = async () => {
     await apiClient.enemy.$post();
   };
+  0;
 
   useEffect(() => {
     const intervalId = setInterval(async () => {
@@ -111,7 +112,7 @@ const Controller = () => {
         </div>
         <button
           className={`${styles['center-button']} ${styles.item1}`}
-          onClick={async () => await apiClient.item.post({ body: { type: 1 } })}
+          onClick={() => createEnemy()}
         >
           1️⃣
         </button>
@@ -123,7 +124,7 @@ const Controller = () => {
         </button>
         <button
           className={`${styles['center-button']} ${styles.item3}`}
-          onClick={async () => await apiClient.item.post({ body: { type: 3 } })}
+          onClick={async () => await apiClient.item.post({ body: { type: 1 } })}
         >
           3️⃣
         </button>

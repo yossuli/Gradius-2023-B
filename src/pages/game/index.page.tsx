@@ -26,7 +26,6 @@ const Game = () => {
     const [enemies, setEnemies] = useState<EnemyModel[]>([]);
     const [playerBullets, setPlayerBullets] = useState<BulletModel[]>([]);
     const [enemyBullets, setEnemyBullets] = useState<BulletModel[]>([]);
-    const [currentTime, setCurrentTime] = useState<number>(Date.now());
     const ufoRefs = useRef<RefObject<Konva.Image>[]>([]);
 
     const [width, setWidth] = useState<number>(0);
@@ -41,7 +40,6 @@ const Game = () => {
       const res = await apiClient.enemy.$get({ query: { display } });
       if (res !== null) setEnemies(res);
     };
-
     const fetchBullets = async (display: number) => {
       const res = await apiClient.bullet.$get({ query: { display } });
       if (res !== null) {
@@ -56,7 +54,7 @@ const Game = () => {
         const hitBullet: BulletModel | undefined = collisionBullets(
           enemy.createdPosition,
           playerBullets,
-          currentTime
+          Date.now()
         )[0];
         if (hitBullet !== undefined && hitBullet.playerId) {
           const body = {
@@ -69,13 +67,13 @@ const Game = () => {
           remainingEnemies.push(enemy);
         }
       }
-    }, [currentTime, enemies, playerBullets]);
+    }, [enemies, playerBullets]);
 
     const checkCollisionEnemyBullet = useCallback(async () => {
       Promise.all(
         players
           .map((player) => {
-            const hitBullets = collisionBullets(player.position, enemyBullets, currentTime);
+            const hitBullets = collisionBullets(player.position, enemyBullets, Date.now());
             return hitBullets.map((bullet) =>
               apiClient.player.delete({
                 body: { player, bulletId: bullet.id, display },
@@ -88,7 +86,7 @@ const Game = () => {
           result;
         })
       );
-    }, [currentTime, players, enemyBullets]);
+    }, [players, enemyBullets]);
 
     const checkCollisionPlayerAndEnemy = useCallback(async () => {
       const remainingEnemies = [];
@@ -116,7 +114,6 @@ const Game = () => {
         checkCollisionPlayerBullet();
         checkCollisionPlayerAndEnemy();
         checkCollisionEnemyBullet();
-        setCurrentTime(Date.now());
       });
       return () => cancelAnimationFrame(cancelId);
     }, [checkCollisionEnemyBullet, checkCollisionPlayerAndEnemy, checkCollisionPlayerBullet]);
@@ -171,12 +168,12 @@ const Game = () => {
           </Layer>
           <Layer>
             {playerBullets.map((bullet) => (
-              <Bullet key={bullet.id} bullet={bullet} type={1} currentTime={currentTime} />
+              <Bullet key={bullet.id} bullet={bullet} type={1} currentTime={Date.now()} />
             ))}
           </Layer>
           <Layer>
             {enemyBullets.map((bullet) => (
-              <Bullet key={bullet.id} bullet={bullet} type={0} currentTime={currentTime} />
+              <Bullet key={bullet.id} bullet={bullet} type={0} currentTime={Date.now()} />
             ))}
           </Layer>
           <Layer>
